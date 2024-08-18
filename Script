@@ -1,0 +1,71 @@
+let timerInterval;
+let elapsedTime = 0;
+let isRunning = false;
+let lapCount = 0;
+
+const display = document.getElementById('display');
+const startPauseBtn = document.getElementById('startPauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const lapBtn = document.getElementById('lapBtn');
+const lapsList = document.getElementById('laps');
+
+function updateDisplay(time) {
+    const milliseconds = time % 1000;
+    const totalSeconds = Math.floor(time / 1000);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60);
+    display.textContent = `${padZero(minutes)}:${padZero(seconds)}:${padZero(Math.floor(milliseconds / 10))}`;
+}
+
+function padZero(number) {
+    return number.toString().padStart(2, '0');
+}
+
+function startTimer() {
+    const startTime = Date.now() - elapsedTime;
+    timerInterval = setInterval(() => {
+        elapsedTime = Date.now() - startTime;
+        updateDisplay(elapsedTime);
+    }, 10);
+    isRunning = true;
+    startPauseBtn.textContent = 'Pause';
+    resetBtn.disabled = false;
+    lapBtn.disabled = false;
+}
+
+function pauseTimer() {
+    clearInterval(timerInterval);
+    isRunning = false;
+    startPauseBtn.textContent = 'Start';
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    elapsedTime = 0;
+    lapCount = 0;
+    isRunning = false;
+    updateDisplay(0);
+    startPauseBtn.textContent = 'Start';
+    resetBtn.disabled = true;
+    lapBtn.disabled = true;
+    lapsList.innerHTML = '';
+}
+
+function recordLap() {
+    lapCount++;
+    const lapTime = document.createElement('li');
+    lapTime.textContent = `Lap ${lapCount}: ${display.textContent}`;
+    lapsList.appendChild(lapTime);
+}
+
+startPauseBtn.addEventListener('click', () => {
+    if (isRunning) {
+        pauseTimer();
+    } else {
+        startTimer();
+    }
+});
+
+resetBtn.addEventListener('click', resetTimer);
+
+lapBtn.addEventListener('click', recordLap);
